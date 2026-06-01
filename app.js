@@ -10,7 +10,11 @@ const defaultState = {
   currentStep: 0,
   completedSteps: [],
   theme: 'dark',
-  diagnostic: { q1: null, q2: null, q3: null },
+  diagnostic: {
+    currentVoter: 'laurent', // 'laurent' | 'lilian'
+    laurent: { q1: null, q2: null, q3: null, q4: null, q5: null },
+    lilian:  { q1: null, q2: null, q3: null, q4: null, q5: null },
+  },
   roadmapChecks: {},
   actionChecks: {},
 };
@@ -325,38 +329,158 @@ function updateStepper() {
 
 // ── Step rendering ─────────────────────────────
 
-function renderStep0() {
-  const d = state.diagnostic;
-  const qs = [
-    { id: 'q1', title: 'Où en êtes-vous dans votre transition vers les agents IA ?', opts: [
-      { v: 'exploration', l: '🔍 Exploration — Je découvre ce que les agents IA peuvent faire' },
-      { v: 'experimentation', l: '🧪 Expérimentation — J\'ai quelques agents qui tournent' },
-      { v: 'structuration', l: '🏗️ Structuration — Je bâtis un écosystème cohérent' },
-      { v: 'scale', l: '🚀 Passage à l\'échelle — Je veux industrialiser et vendre' },
-    ]},
-    { id: 'q2', title: 'Quel est votre plus gros frein actuel ?', opts: [
-      { v: 'temps', l: '⏳ Manque de temps pour tout configurer' },
-      { v: 'technique', l: '🔧 Complexité technique / courbe d\'apprentissage' },
-      { v: 'clients', l: '👥 Trouver les premiers clients agents IA' },
-      { v: 'priorites', l: '🎯 Priorités floues, trop de chantiers en parallèle' },
-    ]},
-    { id: 'q3', title: 'Quel est votre objectif prioritaire cette semaine ?', opts: [
-      { v: 'stabiliser', l: '🛡️ Stabiliser l\'existant' },
-      { v: 'creer', l: '✨ Créer un nouvel agent ou une capacité' },
-      { v: 'vendre', l: '💰 Vendre des agents IA à un client' },
-      { v: 'optimiser', l: '📈 Optimiser la performance des agents' },
-    ]}
-  ];
+// ── Diagnostic questions (room-specific, generated from past transcripts) ──
+const diagnosticQuestions = [
+  {
+    id: 'q1', title: 'Quel est le vrai blocage du CRM cette semaine ?',
+    opts: [
+      { v: 'adresse', l: '📍 Adresse qui change à chaque relance — il faut un déploiement stable sur Vercel/GitHub' },
+      { v: 'interface', l: '🖥️ Interface — on n\'a toujours pas les tâches cochables et le lettrage barré' },
+      { v: 'protocole', l: '📋 Protocole — les autres agents ne savent pas encore interagir avec l\'agent CRM' },
+      { v: 'donnees', l: '📥 Données — les transcriptions mails ne sont pas encore automatiquement intégrées' },
+    ]
+  },
+  {
+    id: 'q2', title: 'Mardi matin, où en est VRAIMENT l\'agent Sandra ?',
+    opts: [
+      { v: 'fiable', l: '✅ Pipeline fiable — on finalise les sorties propres ce matin' },
+      { v: 'moyen', l: '⚠️ Itérations Codex moyennes — il faut encore corriger des erreurs d\'alignement' },
+      { v: 'bifurquer', l: '🔄 Bifurquer — plutôt que reproduire son tableau artisanal, proposer une app de visualisation' },
+      { v: 'appeler', l: '📞 Si blocage à midi, j\'appelle Sandra pour discuter d\'une solution applicative' },
+    ]
+  },
+  {
+    id: 'q3', title: 'Comment organiser le travail de Lilian cette semaine ?',
+    opts: [
+      { v: 'journee', l: '📅 Planning journée par journée — priorités du matin, ajustements le soir' },
+      { v: 'semaine', l: '🎯 Objectifs semaine avec sous-objectifs, découpés en tâches dans le planning' },
+      { v: 'longterme', l: '🗓️ Planning projet 2-3 semaines, réévalué chaque lundi' },
+      { v: 'flottant', l: '🌊 Priorités flottantes — l\'important c\'est que Sandra et le CRM avancent' },
+    ]
+  },
+  {
+    id: 'q4', title: 'Quel niveau de supervision pour les agents de Laurent cette semaine ?',
+    opts: [
+      { v: 'audit', l: '🔍 Audit complet de chaque agent (fonctionnalités, outils, mémoire, problèmes) — livrable mardi' },
+      { v: 'rapport', l: '📊 Rapport quotidien automatique (tokens, appels d\'outils, insatisfactions) — archivé si OK' },
+      { v: 'continu', l: '🖧 Branchement sur OpenClaw de Laurent + monitoring continu, comme un administrateur' },
+      { v: 'apres', l: '⏸️ On se concentre d\'abord sur Sandra et le CRM, le monitoring viendra après' },
+    ]
+  },
+  {
+    id: 'q5', title: 'Quelle est la priorité commerciale concrète pour cette semaine ?',
+    opts: [
+      { v: 'stabiliser', l: '🛡️ Stabiliser les agents existants (MCB, AC66, Sales Coach) avant de démarcher' },
+      { v: 'site', l: '🌐 Finaliser le site LSD Agents avec le pricing validé (Pack Dirigeant 495€)' },
+      { v: 'clients', l: '👥 Avancer sur les 2 clients actuels et trouver le 3ème — objectif 5 clients en production' },
+      { v: 'prospection', l: '🎯 Préparer Target Interactif pour reprendre la prospection en fin de semaine' },
+    ]
+  }
+];
 
-  let h = `<div class="step-header"><span class="step-icon">🎯</span><h2>Diagnostic initial</h2><p>3 questions pour personnaliser votre parcours de pilotage.</p></div>`;
-  qs.forEach(q => {
+function voterLabel(voter) {
+  return voter === 'laurent' ? '👤 Laurent' : '👤 Lilian';
+}
+
+function voterHasAnswered(voter) {
+  const answers = state.diagnostic[voter];
+  return answers && Object.values(answers).every(v => v !== null);
+}
+
+function bothAnswered() {
+  return voterHasAnswered('laurent') && voterHasAnswered('lilian');
+}
+
+function renderVoterSwitcher() {
+  const current = state.diagnostic.currentVoter;
+  const laurentDone = voterHasAnswered('laurent');
+  const lilianDone = voterHasAnswered('lilian');
+
+  let h = `<div class="voter-switcher">`;
+  h += `<button class="voter-btn${current === 'laurent' ? ' active' : ''}${laurentDone ? ' done' : ''}" data-voter="laurent">`;
+  h += `<span class="voter-avatar">👤</span><span class="voter-name">Laurent</span>`;
+  if (laurentDone) h += `<span class="voter-check">✓</span>`;
+  h += `</button>`;
+  h += `<button class="voter-btn${current === 'lilian' ? ' active' : ''}${lilianDone ? ' done' : ''}" data-voter="lilian">`;
+  h += `<span class="voter-avatar">👤</span><span class="voter-name">Lilian</span>`;
+  if (lilianDone) h += `<span class="voter-check">✓</span>`;
+  h += `</button>`;
+  h += `</div>`;
+  return h;
+}
+
+function renderDiagnosticQuestions(voter) {
+  const answers = state.diagnostic[voter];
+  let h = '';
+  diagnosticQuestions.forEach(q => {
     h += `<div class="glass-card diagnostic-question"><h3>${q.title}</h3><div class="option-group">`;
     q.opts.forEach(o => {
-      const sel = d[q.id] === o.v ? ' selected' : '';
+      const sel = answers[q.id] === o.v ? ' selected' : '';
       h += `<button class="option-btn${sel}" data-q="${q.id}" data-v="${o.v}">${o.l}</button>`;
     });
     h += `</div></div>`;
   });
+  return h;
+}
+
+function renderComparison() {
+  const laurent = state.diagnostic.laurent;
+  const lilian = state.diagnostic.lilian;
+  let aligned = 0;
+  let total = diagnosticQuestions.length;
+
+  let h = `<div class="step-header"><span class="step-icon">🔬</span><h2>Comparaison du diagnostic</h2><p>Convergences et divergences entre les deux participants.</p></div>`;
+
+  // Summary
+  diagnosticQuestions.forEach(q => {
+    if (laurent[q.id] === lilian[q.id]) aligned++;
+  });
+  const pct = Math.round((aligned / total) * 100);
+  const alignColor = pct >= 80 ? 'var(--accent-emerald)' : pct >= 50 ? '#f59e0b' : '#ef4444';
+
+  h += `<div class="comparison-summary" style="border-left: 4px solid ${alignColor}">`;
+  h += `<div class="comp-summary-value" style="color:${alignColor}">${aligned}/${total} questions alignées (${pct}%)</div>`;
+  h += `<div class="comp-summary-hint">${pct >= 80 ? '🟢 Forte convergence — vous êtes sur la même longueur d\'onde' : pct >= 50 ? '🟡 Alignement partiel — discutez les points de divergence' : '🔴 Divergence forte — prenez le temps d\'explorer vos différences de vision'}</div>`;
+  h += `</div>`;
+
+  // Per-question comparison
+  diagnosticQuestions.forEach(q => {
+    const same = laurent[q.id] === lilian[q.id];
+    const laurentOpt = q.opts.find(o => o.v === laurent[q.id]);
+    const lilianOpt = q.opts.find(o => o.v === lilian[q.id]);
+
+    h += `<div class="comparison-card ${same ? 'aligned' : 'divergent'}">`;
+    h += `<div class="comp-header"><span class="comp-icon">${same ? '✅' : '⚠️'}</span><h3>${q.title}</h3></div>`;
+    h += `<div class="comp-answers">`;
+    h += `<div class="comp-answer laurent"><span class="comp-voter">👤 Laurent</span><span class="comp-choice">${laurentOpt ? laurentOpt.l : '—'}</span></div>`;
+    h += `<div class="comp-answer lilian"><span class="comp-voter">👤 Lilian</span><span class="comp-choice">${lilianOpt ? lilianOpt.l : '—'}</span></div>`;
+    h += `</div></div>`;
+  });
+
+  // Button to switch back to voting
+  h += `<div style="text-align:center;margin-top:1.5rem"><button class="btn-nav btn-primary" id="backToVote">✏️ Modifier les réponses</button></div>`;
+  return h;
+}
+
+function renderStep0() {
+  const currentVoter = state.diagnostic.currentVoter;
+
+  // If both answered, show comparison
+  if (bothAnswered()) {
+    return renderComparison();
+  }
+
+  let h = `<div class="step-header"><span class="step-icon">🎯</span><h2>Diagnostic de la semaine</h2><p>5 questions pour aligner vos priorités. Chaque participant répond, puis comparez vos visions.</p></div>`;
+  h += renderVoterSwitcher();
+  h += `<div class="voter-hint">Répondez en tant que <strong>${voterLabel(currentVoter)}</strong></div>`;
+  h += renderDiagnosticQuestions(currentVoter);
+  h += `<div style="text-align:center;margin-top:1rem">`;
+  if (voterHasAnswered(currentVoter)) {
+    h += `<button class="btn-nav btn-primary" id="switchVoterBtn">Passer à l'autre participant →</button>`;
+  } else {
+    h += `<span style="color:var(--text-tertiary);font-size:0.82rem">Répondez aux 5 questions ci-dessus</span>`;
+  }
+  h += `</div>`;
   return h;
 }
 
@@ -437,7 +561,7 @@ function renderStep5() {
   const total = a.items.length;
   const done = a.items.filter(act => state.actionChecks[act.id]).length;
   const roadmapDone = Object.keys(state.roadmapChecks).filter(k => state.roadmapChecks[k]).length;
-  const diagDone = Object.values(state.diagnostic).every(v => v !== null);
+  const diagDone = bothAnswered();
 
   let h = `<div class="step-header"><span class="step-icon">✅</span><h2>${a.title}</h2><p>${a.subtitle}</p></div>`;
 
@@ -489,18 +613,54 @@ function renderAll() {
 }
 
 function attachListeners() {
-  // Step 0: options
+  // Step 0: voter switcher
+  document.querySelectorAll('.voter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const voter = btn.dataset.voter;
+      state.diagnostic.currentVoter = voter;
+      saveState();
+      renderAll();
+    });
+  });
+
+  // Step 0: options (per-voter)
   document.querySelectorAll('.option-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const q = btn.dataset.q;
       const v = btn.dataset.v;
+      const voter = state.diagnostic.currentVoter;
       btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
-      state.diagnostic[q] = v;
+      state.diagnostic[voter][q] = v;
       saveState();
       showToast('Réponse enregistrée ✓');
+      // If this was the last unanswered question, offer switch
+      if (voterHasAnswered(voter)) {
+        setTimeout(() => renderAll(), 600);
+      }
     });
   });
+
+  // Step 0: switch voter button
+  const switchBtn = document.getElementById('switchVoterBtn');
+  if (switchBtn) {
+    switchBtn.addEventListener('click', () => {
+      const other = state.diagnostic.currentVoter === 'laurent' ? 'lilian' : 'laurent';
+      state.diagnostic.currentVoter = other;
+      saveState();
+      renderAll();
+    });
+  }
+
+  // Step 0: back to vote from comparison
+  const backBtn = document.getElementById('backToVote');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      state.diagnostic.currentVoter = 'laurent';
+      saveState();
+      renderAll();
+    });
+  }
 
   // Step 3: milestones
   document.querySelectorAll('.milestone-item').forEach(item => {
