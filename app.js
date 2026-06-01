@@ -41,28 +41,28 @@ const data = {
     layers: [
       { id: 'infrastructure', name: 'Infrastructure', icon: '⚙️', color: '#3b82f6',
         agents: [
-          { name: 'CRM Manager', role: 'Base de données clients/deals/tâches', maturity: 'robuste', label: 'Robuste' },
+          { name: 'CRM Manager', role: 'Base de données clients/deals/tâches', maturity: 'fonctionnel', label: 'Fonctionnel' },
           { name: 'Main / ClawdIA', role: 'Orchestrateur, conseil stratégique', maturity: 'robuste', label: 'Robuste' },
-          { name: 'Workspace Cleaner', role: 'Maintenance workspaces', maturity: 'fonctionnel', label: 'Fonctionnel' },
         ]},
       { id: 'production', name: 'Production Commerciale', icon: '🏭', color: '#FF6B35',
         agents: [
           { name: 'Executive Assistant', role: 'Propositions, briefings, debriefs', maturity: 'fonctionnel', label: 'Fonctionnel' },
           { name: 'Sales-Coach', role: 'Analyse d\'appels, coaching', maturity: 'fonctionnel', label: 'Fonctionnel' },
           { name: 'Copywriter-Publisher', role: 'Articles, LinkedIn, voix Laurent', maturity: 'robuste', label: 'Robuste' },
-          { name: 'Video Montage', role: 'Témoignages, sous-titres, YouTube', maturity: 'fonctionnel', label: 'Fonctionnel' },
-          { name: 'Site Maintainer', role: 'SEO/GEO, laurentserre.com', maturity: 'fonctionnel', label: 'Fonctionnel' },
+          { name: 'Video Montage', role: 'Témoignages, sous-titres, YouTube', maturity: 'emergent', label: 'Émergent' },
+          { name: 'Site Maintainer', role: 'SEO/GEO, laurentserre.com', maturity: 'robuste', label: 'Robuste' },
         ]},
       { id: 'prospection', name: 'Prospection & Relation', icon: '🎯', color: '#10b981',
         agents: [
-          { name: 'Prospector', role: 'Veille LinkedIn des contacts CRM', maturity: 'emergent', label: 'Émergent' },
-          { name: 'Target Hunter', role: 'Sourcing et ciblage', maturity: 'a-creer', label: 'À créer' },
-          { name: 'Construct', role: 'Marque LSD Agents, site, catalogue', maturity: 'fonctionnel', label: 'Fonctionnel' },
+          { name: 'Prospector', role: 'Veille LinkedIn des contacts CRM', maturity: 'fonctionnel', label: 'Fonctionnel' },
+          { name: 'Target Hunter', role: 'Sourcing et ciblage', maturity: 'emergent', label: 'Émergent' },
+          { name: 'Construct', role: 'Marque LSD Agents, site, catalogue', maturity: 'emergent', label: 'Émergent' },
         ]}
     ],
     clients: [
-      { name: 'Flora Assistante Bot', client: 'Flora / audioprothésistes' },
-      { name: 'MCB', client: 'Mon Coach Brico / Dimitri' },
+      { name: 'MCB', client: 'Mon Coach Brico / Dimitri', maturity: 'fonctionnel', label: 'Fonctionnel' },
+      { name: 'AC66', client: 'Audition Conseil 66', maturity: 'fonctionnel', label: 'Fonctionnel' },
+      { name: 'Flora', client: 'Flora / audioprothésistes', maturity: 'a-supprimer', label: 'Inactif' },
     ],
     note: 'Tous les agents de production interagissent avec le CRM Manager via protocole @CRM'
   },
@@ -85,32 +85,34 @@ const data = {
       { icon: '🤖', name: 'Agents spécialisés', desc: 'Chaque agent excelle sur une tâche précise' },
       { icon: '📡', name: 'Infrastructure interconnectée', desc: 'CRM central, protocoles standardisés' },
       { icon: '🎓', name: 'Formation continue', desc: 'Les agents apprennent et s\'améliorent' },
+      { icon: '📡', name: 'Monitoring & Supervision', desc: 'Audit continu des agents, alertes, rapports quotidiens' },
     ]
   },
   roadmap: {
     title: 'Roadmap', subtitle: 'Les phases de la bascule — cochez chaque jalon',
     phases: [
-      { id: 'p1', name: 'Phase 1 — Fondations', period: 'Avril-Mai 2026', status: 'en-cours', label: 'En cours', progress: 75, color: '#FF6B35',
+      { id: 'p1', name: 'Phase 1 — Fondations', period: 'Avril-Mai 2026', status: 'en-cours', label: 'En cours', progress: 60, color: '#FF6B35',
         milestones: [
           { label: 'CRM unifié', detail: 'Schéma standardisé, tous les agents connectés' },
           { label: 'Protocole @CRM', detail: 'Format standard interactions agent→CRM' },
-          { label: 'Workspace cleaner', detail: 'Maintenance automatique des workspaces' },
           { label: 'Design system', detail: 'Design tokens, composants cohérents' },
+          { label: 'Monitoring agents', detail: 'Supervision automatique de l\'écosystème' },
         ]},
-      { id: 'p2', name: 'Phase 2 — Production', period: 'Juin-Août 2026', status: 'planifie', label: 'Planifié', progress: 10, color: '#3b82f6',
+      { id: 'p2', name: 'Phase 2 — Production', period: 'Juin-Août 2026', status: 'planifie', label: 'Planifié', progress: 5, color: '#3b82f6',
         milestones: [
-          { label: 'Site LSD Agents', detail: 'Vitrine institutionnelle, catalogue d\'agents' },
+          { label: 'Agent Sandra (dashboard)', detail: 'Pipeline données → visualisation placement jeunes (deadline 05/06)' },
+          { label: 'Mise en production MCB', detail: 'Stabiliser et déployer l\'agent Mon Coach Brico' },
+          { label: 'Mise en production AC66', detail: 'Stabiliser et déployer l\'agent Audition Conseil 66' },
+          { label: 'CRM déploiement Vercel', detail: 'Adresse stable, synchro GitHub, token Telegram' },
           { label: 'Prospector optimisé', detail: 'Routine 8h, veille LinkedIn automatisée' },
-          { label: 'Sales-Coach v2', detail: 'Dashboard enrichi, recommandations' },
-          { label: 'Video Montage pipeline', detail: 'Workflow industrialisé, délai < 48h' },
-          { label: 'Site laurentserre.com v2', detail: 'SEO/GEO, tunnel conversion' },
         ]},
       { id: 'p3', name: 'Phase 3 — Scale', period: 'Sept-Déc 2026', status: 'planifie', label: 'Planifié', progress: 0, color: '#10b981',
         milestones: [
-          { label: 'Target Hunter actif', detail: 'Sourcing et ciblage automatisé' },
+          { label: 'Site LSD Agents', detail: 'Vitrine institutionnelle, catalogue d\'agents, domaine' },
+          { label: 'Sales-Coach v2', detail: 'Dashboard enrichi, recommandations, déploiement prospects' },
+          { label: 'Target Hunter actif', detail: 'Sourcing et ciblage automatisé (distinct de Prospector)' },
           { label: 'Agents clients x5', detail: 'Déploiement chez 5 nouveaux clients' },
-          { label: 'Dashboard client', detail: 'Portail client pour suivre ses agents' },
-          { label: 'Automatisation commerciale', detail: 'Devis→contrat→onboarding automatisés' },
+          { label: 'Dashboard client', detail: 'Portail client pour suivre ses agents (tokens, usage)' },
         ]},
       { id: 'p4', name: 'Phase 4 — Domination', period: '2027', status: 'planifie', label: 'Planifié', progress: 0, color: '#a855f7',
         milestones: [
@@ -123,7 +125,7 @@ const data = {
   metrics: {
     title: 'Métriques', subtitle: 'Les indicateurs clés de la bascule',
     items: [
-      { label: 'Agents en production', current: 11, target: 15, unit: '', trend: 'up' },
+      { label: 'Agents en production', current: 9, target: 12, unit: '', trend: 'up' },
       { label: 'Agents robustes', current: 3, target: 8, unit: '', trend: 'up' },
       { label: 'Clients actifs', current: 2, target: 5, unit: '', trend: 'up' },
       { label: 'Articles/mois', current: 4, target: 8, unit: '', trend: 'down' },
@@ -134,14 +136,14 @@ const data = {
   actions: {
     title: 'Plan d\'action', subtitle: 'Vos prochaines actions prioritaires',
     items: [
-      { id: 'a1', text: 'Finaliser le schéma CRM unifié', detail: 'Valider les champs avec tous les agents', priority: 'haute' },
-      { id: 'a2', text: 'Déployer le site LSD Agents', detail: 'Vitrine institutionnelle, catalogue d\'agents', priority: 'haute' },
-      { id: 'a3', text: 'Lancer le digest CRM hebdomadaire', detail: 'Résumé automatique chaque vendredi 18h', priority: 'moyenne' },
-      { id: 'a4', text: 'Optimiser le Prospector (routine 8h)', detail: 'Script de veille LinkedIn automatisée', priority: 'haute' },
-      { id: 'a5', text: 'Produire 2 témoignages clients vidéo', detail: 'Flora + MCB, montage < 48h', priority: 'moyenne' },
-      { id: 'a6', text: 'Créer le portail client dashboard', detail: 'Vue client sur l\'activité de ses agents', priority: 'moyenne' },
-      { id: 'a7', text: 'Redéfinir la mission Target Hunter', detail: 'Scinder Prospector : veille vs sourcing', priority: 'haute' },
-      { id: 'a8', text: 'Auditer les performances SEO du site', detail: 'GSC, Analytics, plan d\'optimisation', priority: 'moyenne' },
+      { id: 'a1', text: 'Finaliser l\'agent de Sandra', detail: 'Pipeline données → dashboard visualisation placement (deadline 05/06)', priority: 'haute' },
+      { id: 'a2', text: 'Déployer le CRM sur Vercel (adresse stable)', detail: 'URL fixe, synchro GitHub, token Telegram CRM', priority: 'haute' },
+      { id: 'a3', text: 'Mettre en prod MCB et AC66', detail: 'Stabiliser et déployer les 2 agents clients existants', priority: 'haute' },
+      { id: 'a4', text: 'Finaliser le schéma CRM unifié', detail: 'Valider les champs, protocole lecture/écriture agents', priority: 'haute' },
+      { id: 'a5', text: 'Auditer les agents de Laurent (monitoring)', detail: 'Fonctionnalités, outils, mémoire, problèmes, redondances', priority: 'haute' },
+      { id: 'a6', text: 'Ouvrir canal Telegram Lilian ↔ Agent dev', detail: 'Pour que Lilian briefe le développeur du CRM', priority: 'moyenne' },
+      { id: 'a7', text: 'Préparer Target Interactif (prospection)', detail: 'Reprendre la prospection en fin de semaine', priority: 'moyenne' },
+      { id: 'a8', text: 'Produire 2 témoignages clients vidéo', detail: 'MCB + AC66, montage < 48h', priority: 'basse' },
     ]
   }
 };
